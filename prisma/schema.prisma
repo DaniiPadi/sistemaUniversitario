@@ -1,0 +1,106 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Specialty {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  careers Career[]
+}
+
+model Career {
+  id          Int       @id @default(autoincrement())
+  name        String
+  duration    Int
+  specialtyId Int
+  specialty   Specialty @relation(fields: [specialtyId], references: [id], onDelete: Cascade)
+  students    Student[]
+  subjects    Subject[]
+
+  @@index([specialtyId])
+}
+
+model Cycle {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  number   Int       @unique
+  subjects Subject[]
+}
+
+model Subject {
+  id       Int              @id @default(autoincrement())
+  name     String
+  credits  Int
+  careerId Int
+  cycleId  Int
+  students StudentSubject[]
+  career   Career           @relation(fields: [careerId], references: [id], onDelete: Cascade)
+  cycle    Cycle            @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  teachers TeacherSubject[]
+
+  @@index([careerId])
+  @@index([cycleId])
+}
+
+model Teacher {
+  id        Int              @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String           @unique
+  phone     String?
+  createdAt DateTime         @default(now())
+  subjects  TeacherSubject[]
+}
+
+model TeacherSubject {
+  id        Int     @id @default(autoincrement())
+  teacherId Int
+  subjectId Int
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, subjectId])
+  @@index([teacherId])
+  @@index([subjectId])
+}
+
+model Student {
+  id        Int              @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String           @unique
+  phone     String?
+  careerId  Int
+  createdAt DateTime         @default(now())
+  career    Career           @relation(fields: [careerId], references: [id], onDelete: Cascade)
+  subjects  StudentSubject[]
+
+  @@index([careerId])
+}
+
+model StudentSubject {
+  id        Int     @id @default(autoincrement())
+  studentId Int
+  subjectId Int
+  grade     Float?
+  passed    Boolean @default(false)
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, subjectId])
+  @@index([studentId])
+  @@index([subjectId])
+}
