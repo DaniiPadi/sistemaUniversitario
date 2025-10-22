@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prism/prisma.service';
 import { CreateSubjectDto } from './dto/create-subject.dto';
+import { UpdateSubjectDto } from './dto/update-subject.dto';
 
 @Injectable()
 export class SubjectService {
@@ -79,5 +80,46 @@ export class SubjectService {
     }
 
     return subject;
+  }
+
+  async update(id: number, updateSubjectDto: UpdateSubjectDto) {
+    await this.findOne(id);
+    
+    if (updateSubjectDto.careerId) {
+      const career = await this.prisma.career.findUnique({
+        where: { id: updateSubjectDto.careerId },
+      });
+
+      if (!career) {
+        throw new BadRequestException(`Career with ID ${updateSubjectDto.careerId} not found`);
+      }
+    }
+
+    if (updateSubjectDto.cycleId) {
+      const cycle = await this.prisma.cycle.findUnique({
+        where: { id: updateSubjectDto.cycleId },
+      });
+
+      if (!cycle) {
+        throw new BadRequestException(`Cycle with ID ${updateSubjectDto.cycleId} not found`);
+      }
+    }
+
+    return this.prisma.subject.update({
+      where: { id },
+      data: updateSubjectDto,
+      include: {
+        career: true,
+        cycle: true,
+      },
+    });
+  }
+
+  async remove(id: number) {
+    await this.findOne(id);
+    
+    return this.prisma.subject.delete({
+      where: { id },
+    });
   }
 }

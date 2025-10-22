@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, Query, ParseIntPipe } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe} from '@nestjs/common';
 import { CycleService } from './cycle.service';
 import { CreateCycleDto } from './dto/create-cycle.dto';
+import { UpdateCycleDto } from './dto/update-cycle.dto';
 
 @Controller('cycles')
 export class CycleController {
@@ -22,5 +23,18 @@ export class CycleController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.cycleService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCycleDto: UpdateCycleDto,
+  ) {
+    return this.cycleService.update(id, updateCycleDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.cycleService.remove(id);
   }
 }

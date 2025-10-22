@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, Query, ParseIntPipe } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe} from '@nestjs/common';
 import { SubjectService } from './subject.service';
 import { CreateSubjectDto } from './dto/create-subject.dto';
+import { UpdateSubjectDto } from './dto/update-subject.dto';
 
 @Controller('subjects')
 export class SubjectController {
@@ -22,5 +23,18 @@ export class SubjectController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.subjectService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateSubjectDto: UpdateSubjectDto,
+  ) {
+    return this.subjectService.update(id, updateSubjectDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.subjectService.remove(id);
   }
 }

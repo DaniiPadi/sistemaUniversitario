@@ -9,11 +9,13 @@ import { TeacherModule } from './teacher/teacher.module';
 import { StudentModule } from './student/student.module';
 import { UserModule } from './user/user.module';
 import { PrismaModule } from './prism/prisma.module';
+import { TeacherSubjectModule } from './teacher-subject/teacher-subject.module';
+import { StudentSubjectModule } from './student-subject/student-subject.module';
 
 
 
 @Module({
-  imports: [PrismaModule, SpecialtyModule, CareerModule, CycleModule, SubjectModule, TeacherModule, StudentModule, UserModule],
+  imports: [PrismaModule, SpecialtyModule, CareerModule, CycleModule, SubjectModule, TeacherModule, StudentModule, UserModule, TeacherSubjectModule, StudentSubjectModule],
   controllers: [AppController],
   providers: [AppService],
 })

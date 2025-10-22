@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body, Param, Query, ParseIntPipe } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query,ParseIntPipe } from '@nestjs/common';
 import { CareerService } from './career.service';
 import { CreateCareerDto } from './dto/create-career.dto';
+import { UpdateCareerDto } from './dto/update-career.dto';
 
 @Controller('careers')
 export class CareerController {
@@ -22,5 +23,18 @@ export class CareerController {
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.careerService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCareerDto: UpdateCareerDto,
+  ) {
+    return this.careerService.update(id, updateCareerDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.careerService.remove(id);
   }
 }

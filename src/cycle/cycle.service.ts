@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prism/prisma.service';
 import { CreateCycleDto } from './dto/create-cycle.dto';
+import { UpdateCycleDto } from './dto/update-cycle.dto';
 
 @Injectable()
 export class CycleService {
@@ -50,5 +51,22 @@ export class CycleService {
     }
 
     return cycle;
+  }
+
+  async update(id: number, updateCycleDto: UpdateCycleDto) {
+    await this.findOne(id);
+    
+    return this.prisma.cycle.update({
+      where: { id },
+      data: updateCycleDto,
+    });
+  }
+
+  async remove(id: number) {
+    await this.findOne(id);
+    
+    return this.prisma.cycle.delete({
+      where: { id },
+    });
   }
 }
