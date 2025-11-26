@@ -1,16 +1,34 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prism/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    return this.prisma.user.create({
-      data: createUserDto,
-    });
+    // Hash de la contraseña
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    try {
+      return await this.prisma.user.create({
+        data: {
+          ...createUserDto,
+          password: hashedPassword,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          username: true,
+          createdAt: true,
+        },
+      });
+    } catch (error) {
+      throw new ConflictException('El email o username ya existe');
+    }
   }
 
   async findAll(page: number = 1, limit: number = 10) {
@@ -24,6 +42,7 @@ export class UserService {
           id: true,
           name: true,
           email: true,
+          username: true,
           createdAt: true,
         },
       }),
@@ -48,12 +67,13 @@ export class UserService {
         id: true,
         name: true,
         email: true,
+        username: true,
         createdAt: true,
       },
     });
 
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     }
 
     return user;
@@ -61,17 +81,28 @@ export class UserService {
 
   async update(id: number, updateUserDto: UpdateUserDto) {
     await this.findOne(id);
-    
-    return this.prisma.user.update({
-      where: { id },
-      data: updateUserDto,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        createdAt: true,
-      },
-    });
+
+    // Hash de la contraseña si se actualiza
+    const dataToUpdate = { ...updateUserDto };
+    if (updateUserDto.password) {
+      dataToUpdate.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
+
+    try {
+      return await this.prisma.user.update({
+        where: { id },
+        data: dataToUpdate,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          username: true,
+          createdAt: true,
+        },
+      });
+    } catch (error) {
+      throw new ConflictException('El email o username ya existe');
+    }
   }
 
   async remove(id: number) {
