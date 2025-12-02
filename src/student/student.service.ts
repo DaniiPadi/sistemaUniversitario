@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prism/prisma.service';
+import { PrismaAcademicService } from '../prisma/prisma-academic.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 
 @Injectable()
 export class StudentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prismaAcademic: PrismaAcademicService) {}
 
   async create(createStudentDto: CreateStudentDto) {
-    const career = await this.prisma.career.findUnique({
+    const career = await this.prismaAcademic.career.findUnique({
       where: { id: createStudentDto.careerId },
     });
 
@@ -16,7 +16,7 @@ export class StudentService {
       throw new BadRequestException(`Career with ID ${createStudentDto.careerId} not found`);
     }
 
-    return this.prisma.student.create({
+    return this.prismaAcademic.student.create({
       data: createStudentDto,
       include: {
         career: {
@@ -32,7 +32,7 @@ export class StudentService {
     const skip = (page - 1) * limit;
     
     const [data, total] = await Promise.all([
-      this.prisma.student.findMany({
+      this.prismaAcademic.student.findMany({
         skip,
         take: limit,
         include: {
@@ -43,7 +43,7 @@ export class StudentService {
           },
         },
       }),
-      this.prisma.student.count(),
+      this.prismaAcademic.student.count(),
     ]);
 
     return {
@@ -58,7 +58,7 @@ export class StudentService {
   }
 
   async findOne(id: number) {
-    const student = await this.prisma.student.findUnique({
+    const student = await this.prismaAcademic.student.findUnique({
       where: { id },
       include: {
         career: {
@@ -89,7 +89,7 @@ export class StudentService {
     await this.findOne(id);
     
     if (updateStudentDto.careerId) {
-      const career = await this.prisma.career.findUnique({
+      const career = await this.prismaAcademic.career.findUnique({
         where: { id: updateStudentDto.careerId },
       });
 
@@ -98,7 +98,7 @@ export class StudentService {
       }
     }
 
-    return this.prisma.student.update({
+    return this.prismaAcademic.student.update({
       where: { id },
       data: updateStudentDto,
       include: {
@@ -114,7 +114,7 @@ export class StudentService {
   async remove(id: number) {
     await this.findOne(id);
     
-    return this.prisma.student.delete({
+    return this.prismaAcademic.student.delete({
       where: { id },
     });
   }

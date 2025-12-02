@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prism/prisma.service';
+import { PrismaAcademicService } from '../prisma/prisma-academic.service';
 import { CreateCareerDto } from './dto/create-career.dto';
 import { UpdateCareerDto } from './dto/update-career.dto';
 
 @Injectable()
 export class CareerService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prismaAcademic: PrismaAcademicService) {}
 
   async create(createCareerDto: CreateCareerDto) {
-    const specialty = await this.prisma.specialty.findUnique({
+    const specialty = await this.prismaAcademic.specialty.findUnique({
       where: { id: createCareerDto.specialtyId },
     });
 
@@ -18,7 +18,7 @@ export class CareerService {
       );
     }
 
-    return this.prisma.career.create({
+    return this.prismaAcademic.career.create({
       data: createCareerDto,
       include: {
         specialty: true,
@@ -30,14 +30,14 @@ export class CareerService {
     const skip = (page - 1) * limit;
     
     const [data, total] = await Promise.all([
-      this.prisma.career.findMany({
+      this.prismaAcademic.career.findMany({
         skip,
         take: limit,
         include: {
           specialty: true,
         },
       }),
-      this.prisma.career.count(),
+      this.prismaAcademic.career.count(),
     ]);
 
     return {
@@ -52,7 +52,7 @@ export class CareerService {
   }
 
   async findOne(id: number) {
-    const career = await this.prisma.career.findUnique({
+    const career = await this.prismaAcademic.career.findUnique({
       where: { id },
       include: {
         specialty: true,
@@ -72,7 +72,7 @@ export class CareerService {
     await this.findOne(id);
     
     if (updateCareerDto.specialtyId) {
-      const specialty = await this.prisma.specialty.findUnique({
+      const specialty = await this.prismaAcademic.specialty.findUnique({
         where: { id: updateCareerDto.specialtyId },
       });
 
@@ -81,7 +81,7 @@ export class CareerService {
       }
     }
 
-    return this.prisma.career.update({
+    return this.prismaAcademic.career.update({
       where: { id },
       data: updateCareerDto,
       include: {
@@ -93,7 +93,7 @@ export class CareerService {
   async remove(id: number) {
     await this.findOne(id);
     
-    return this.prisma.career.delete({
+    return this.prismaAcademic.career.delete({
       where: { id },
     });
   }

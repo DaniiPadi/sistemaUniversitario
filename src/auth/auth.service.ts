@@ -5,21 +5,23 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
-import { PrismaService } from '../prism/prisma.service';
+import { PrismaAuthService } from '../prisma/prisma-auth.service';
 import { LoginDto } from './dto/login.dto';
-import { RegisterDto } from './dto/register.dto'; 
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prismaAuth: PrismaAuthService,
     private readonly jwtService: JwtService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) { }
 
   // Registro de usuario
   async register(dto: RegisterDto) {
-    const existing = await this.prisma.user.findFirst({
+    const existing = await this.prismaAuth.user.findFirst({
       where: {
         OR: [{ email: dto.email }, { username: dto.username }],
       },
@@ -33,12 +35,27 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-    const user = await this.prisma.user.create({
+    const user = await this.prismaAuth.user.create({
       data: {
         name: dto.name,
         email: dto.email,
         username: dto.username,
         password: hashedPassword,
+      },
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -47,11 +64,26 @@ export class AuthService {
 
   // Login
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email }, // si quieres username, cambia esta línea
+    const user = await this.prismaAuth.user.findUnique({
+      where: { email: dto.email },
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
 
-    if (!user) {
+    if (!user || !user.isActive) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
@@ -65,15 +97,18 @@ export class AuthService {
   }
 
   // Construir payload + token
-  private async buildToken(user: {
-    id: number;
-    email: string;
-    username: string;
-  }) {
+  private async buildToken(user: any) {
+    const roles = user.roles.map((ur) => ur.role.name);
+    const permissions = user.roles.flatMap((ur) =>
+      ur.role.permissions.map((rp) => rp.permission.name),
+    );
+
     const payload = {
       sub: user.id,
       email: user.email,
       username: user.username,
+      roles,
+      permissions,
     };
 
     const accessToken = await this.jwtService.signAsync(payload);
@@ -84,7 +119,48 @@ export class AuthService {
         id: user.id,
         email: user.email,
         username: user.username,
+        roles,
+        permissions,
       },
+    };
+  }
+
+  // Validar usuario por ID (para JWT strategy)
+  async validateUser(userId: number) {
+    const user = await this.prismaAuth.user.findUnique({
+      where: { id: userId },
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user || !user.isActive) {
+      return null;
+    }
+
+    const roles = user.roles.map((ur) => ur.role.name);
+    const permissions = user.roles.flatMap((ur) =>
+      ur.role.permissions.map((rp) => rp.permission.name),
+    );
+
+    return {
+      id: user.id,
+      email: user.email,
+      username: user.username,
+      roles,
+      permissions,
     };
   }
 }

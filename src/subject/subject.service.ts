@@ -1,16 +1,16 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../prism/prisma.service';
+import { PrismaAcademicService } from '../prisma/prisma-academic.service';
 import { CreateSubjectDto } from './dto/create-subject.dto';
 import { UpdateSubjectDto } from './dto/update-subject.dto';
 
 @Injectable()
 export class SubjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prismaAcademic: PrismaAcademicService) {}
 
   async create(createSubjectDto: CreateSubjectDto) {
     const [career, cycle] = await Promise.all([
-      this.prisma.career.findUnique({ where: { id: createSubjectDto.careerId } }),
-      this.prisma.cycle.findUnique({ where: { id: createSubjectDto.cycleId } }),
+      this.prismaAcademic.career.findUnique({ where: { id: createSubjectDto.careerId } }),
+      this.prismaAcademic.cycle.findUnique({ where: { id: createSubjectDto.cycleId } }),
     ]);
 
     if (!career) {
@@ -21,7 +21,7 @@ export class SubjectService {
       throw new BadRequestException(`Cycle with ID ${createSubjectDto.cycleId} not found`);
     }
 
-    return this.prisma.subject.create({
+    return this.prismaAcademic.subject.create({
       data: createSubjectDto,
       include: {
         career: true,
@@ -34,7 +34,7 @@ export class SubjectService {
     const skip = (page - 1) * limit;
     
     const [data, total] = await Promise.all([
-      this.prisma.subject.findMany({
+      this.prismaAcademic.subject.findMany({
         skip,
         take: limit,
         include: {
@@ -42,7 +42,7 @@ export class SubjectService {
           cycle: true,
         },
       }),
-      this.prisma.subject.count(),
+      this.prismaAcademic.subject.count(),
     ]);
 
     return {
@@ -57,7 +57,7 @@ export class SubjectService {
   }
 
   async findOne(id: number) {
-    const subject = await this.prisma.subject.findUnique({
+    const subject = await this.prismaAcademic.subject.findUnique({
       where: { id },
       include: {
         career: true,
@@ -86,7 +86,7 @@ export class SubjectService {
     await this.findOne(id);
     
     if (updateSubjectDto.careerId) {
-      const career = await this.prisma.career.findUnique({
+      const career = await this.prismaAcademic.career.findUnique({
         where: { id: updateSubjectDto.careerId },
       });
 
@@ -96,7 +96,7 @@ export class SubjectService {
     }
 
     if (updateSubjectDto.cycleId) {
-      const cycle = await this.prisma.cycle.findUnique({
+      const cycle = await this.prismaAcademic.cycle.findUnique({
         where: { id: updateSubjectDto.cycleId },
       });
 
@@ -105,7 +105,7 @@ export class SubjectService {
       }
     }
 
-    return this.prisma.subject.update({
+    return this.prismaAcademic.subject.update({
       where: { id },
       data: updateSubjectDto,
       include: {
@@ -118,7 +118,7 @@ export class SubjectService {
   async remove(id: number) {
     await this.findOne(id);
     
-    return this.prisma.subject.delete({
+    return this.prismaAcademic.subject.delete({
       where: { id },
     });
   }

@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prism/prisma.service';
+import { PrismaAcademicService } from '../prisma/prisma-academic.service';
 import { CreateCycleDto } from './dto/create-cycle.dto';
 import { UpdateCycleDto } from './dto/update-cycle.dto';
 
 @Injectable()
 export class CycleService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prismaAcademic: PrismaAcademicService) {}
 
   create(createCycleDto: CreateCycleDto) {
-    return this.prisma.cycle.create({
+    return this.prismaAcademic.cycle.create({
       data: createCycleDto,
     });
   }
@@ -17,14 +17,14 @@ export class CycleService {
     const skip = (page - 1) * limit;
     
     const [data, total] = await Promise.all([
-      this.prisma.cycle.findMany({
+      this.prismaAcademic.cycle.findMany({
         skip,
         take: limit,
         include: {
           subjects: true,
         },
       }),
-      this.prisma.cycle.count(),
+      this.prismaAcademic.cycle.count(),
     ]);
 
     return {
@@ -39,7 +39,7 @@ export class CycleService {
   }
 
   async findOne(id: number) {
-    const cycle = await this.prisma.cycle.findUnique({
+    const cycle = await this.prismaAcademic.cycle.findUnique({
       where: { id },
       include: {
         subjects: true,
@@ -56,7 +56,7 @@ export class CycleService {
   async update(id: number, updateCycleDto: UpdateCycleDto) {
     await this.findOne(id);
     
-    return this.prisma.cycle.update({
+    return this.prismaAcademic.cycle.update({
       where: { id },
       data: updateCycleDto,
     });
@@ -65,7 +65,7 @@ export class CycleService {
   async remove(id: number) {
     await this.findOne(id);
     
-    return this.prisma.cycle.delete({
+    return this.prismaAcademic.cycle.delete({
       where: { id },
     });
   }

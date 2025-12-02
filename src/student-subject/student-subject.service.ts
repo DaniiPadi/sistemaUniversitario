@@ -1,15 +1,15 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
-import { PrismaService } from '../prism/prisma.service';
+import { PrismaAcademicService } from '../prisma/prisma-academic.service';
 import { CreateStudentSubjectDto } from './dto/create-student-subject.dto';
 import { UpdateStudentSubjectDto } from './dto/update-student-subject.dto';
 
 @Injectable()
 export class StudentSubjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prismaAcademic: PrismaAcademicService) {}
 
   async create(createStudentSubjectDto: CreateStudentSubjectDto) {
     
-    const student = await this.prisma.student.findUnique({
+    const student = await this.prismaAcademic.student.findUnique({
       where: { id: createStudentSubjectDto.studentId },
     });
 
@@ -18,7 +18,7 @@ export class StudentSubjectService {
     }
 
     
-    const subject = await this.prisma.subject.findUnique({
+    const subject = await this.prismaAcademic.subject.findUnique({
       where: { id: createStudentSubjectDto.subjectId },
     });
 
@@ -27,7 +27,7 @@ export class StudentSubjectService {
     }
 
     
-    const existingRelation = await this.prisma.studentSubject.findUnique({
+    const existingRelation = await this.prismaAcademic.studentSubject.findUnique({
       where: {
         studentId_subjectId: {
           studentId: createStudentSubjectDto.studentId,
@@ -40,7 +40,7 @@ export class StudentSubjectService {
       throw new ConflictException('Student is already enrolled in this subject');
     }
 
-    return this.prisma.studentSubject.create({
+    return this.prismaAcademic.studentSubject.create({
       data: createStudentSubjectDto,
       include: {
         student: {
@@ -62,7 +62,7 @@ export class StudentSubjectService {
     const skip = (page - 1) * limit;
     
     const [data, total] = await Promise.all([
-      this.prisma.studentSubject.findMany({
+      this.prismaAcademic.studentSubject.findMany({
         skip,
         take: limit,
         include: {
@@ -79,7 +79,7 @@ export class StudentSubjectService {
           },
         },
       }),
-      this.prisma.studentSubject.count(),
+      this.prismaAcademic.studentSubject.count(),
     ]);
 
     return {
@@ -94,7 +94,7 @@ export class StudentSubjectService {
   }
 
   async findOne(id: number) {
-    const studentSubject = await this.prisma.studentSubject.findUnique({
+    const studentSubject = await this.prismaAcademic.studentSubject.findUnique({
       where: { id },
       include: {
         student: {
@@ -122,7 +122,7 @@ export class StudentSubjectService {
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
-      this.prisma.studentSubject.findMany({
+      this.prismaAcademic.studentSubject.findMany({
         where: { studentId },
         skip,
         take: limit,
@@ -135,7 +135,7 @@ export class StudentSubjectService {
           },
         },
       }),
-      this.prisma.studentSubject.count({
+      this.prismaAcademic.studentSubject.count({
         where: { studentId },
       }),
     ]);
@@ -155,7 +155,7 @@ export class StudentSubjectService {
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
-      this.prisma.studentSubject.findMany({
+      this.prismaAcademic.studentSubject.findMany({
         where: { subjectId },
         skip,
         take: limit,
@@ -167,7 +167,7 @@ export class StudentSubjectService {
           },
         },
       }),
-      this.prisma.studentSubject.count({
+      this.prismaAcademic.studentSubject.count({
         where: { subjectId },
       }),
     ]);
@@ -186,7 +186,7 @@ export class StudentSubjectService {
   async update(id: number, updateStudentSubjectDto: UpdateStudentSubjectDto) {
     await this.findOne(id);
 
-    return this.prisma.studentSubject.update({
+    return this.prismaAcademic.studentSubject.update({
       where: { id },
       data: updateStudentSubjectDto,
       include: {
@@ -208,7 +208,7 @@ export class StudentSubjectService {
   async remove(id: number) {
     await this.findOne(id);
     
-    return this.prisma.studentSubject.delete({
+    return this.prismaAcademic.studentSubject.delete({
       where: { id },
     });
   }

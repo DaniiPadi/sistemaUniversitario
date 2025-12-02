@@ -1,15 +1,15 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
-import { PrismaService } from '../prism/prisma.service';
+import { PrismaAcademicService } from '../prisma/prisma-academic.service';
 import { CreateTeacherSubjectDto } from './dto/create-teacher-subject.dto';
 import { UpdateTeacherSubjectDto } from './dto/update-teacher-subject.dto';
 
 @Injectable()
 export class TeacherSubjectService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prismaAcademic: PrismaAcademicService) {}
 
   async create(createTeacherSubjectDto: CreateTeacherSubjectDto) {
     
-    const teacher = await this.prisma.teacher.findUnique({
+    const teacher = await this.prismaAcademic.teacher.findUnique({
       where: { id: createTeacherSubjectDto.teacherId },
     });
 
@@ -18,7 +18,7 @@ export class TeacherSubjectService {
     }
 
     
-    const subject = await this.prisma.subject.findUnique({
+    const subject = await this.prismaAcademic.subject.findUnique({
       where: { id: createTeacherSubjectDto.subjectId },
     });
 
@@ -27,7 +27,7 @@ export class TeacherSubjectService {
     }
 
     
-    const existingRelation = await this.prisma.teacherSubject.findUnique({
+    const existingRelation = await this.prismaAcademic.teacherSubject.findUnique({
       where: {
         teacherId_subjectId: {
           teacherId: createTeacherSubjectDto.teacherId,
@@ -40,7 +40,7 @@ export class TeacherSubjectService {
       throw new ConflictException('Teacher is already assigned to this subject');
     }
 
-    return this.prisma.teacherSubject.create({
+    return this.prismaAcademic.teacherSubject.create({
       data: createTeacherSubjectDto,
       include: {
         teacher: true,
@@ -62,7 +62,7 @@ export class TeacherSubjectService {
     const skip = (page - 1) * limit;
     
     const [data, total] = await Promise.all([
-      this.prisma.teacherSubject.findMany({
+      this.prismaAcademic.teacherSubject.findMany({
         skip,
         take: limit,
         include: {
@@ -79,7 +79,7 @@ export class TeacherSubjectService {
           },
         },
       }),
-      this.prisma.teacherSubject.count(),
+      this.prismaAcademic.teacherSubject.count(),
     ]);
 
     return {
@@ -94,7 +94,7 @@ export class TeacherSubjectService {
   }
 
   async findOne(id: number) {
-    const teacherSubject = await this.prisma.teacherSubject.findUnique({
+    const teacherSubject = await this.prismaAcademic.teacherSubject.findUnique({
       where: { id },
       include: {
         teacher: true,
@@ -122,7 +122,7 @@ export class TeacherSubjectService {
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
-      this.prisma.teacherSubject.findMany({
+      this.prismaAcademic.teacherSubject.findMany({
         where: { teacherId },
         skip,
         take: limit,
@@ -139,7 +139,7 @@ export class TeacherSubjectService {
           },
         },
       }),
-      this.prisma.teacherSubject.count({
+      this.prismaAcademic.teacherSubject.count({
         where: { teacherId },
       }),
     ]);
@@ -159,7 +159,7 @@ export class TeacherSubjectService {
     const skip = (page - 1) * limit;
 
     const [data, total] = await Promise.all([
-      this.prisma.teacherSubject.findMany({
+      this.prismaAcademic.teacherSubject.findMany({
         where: { subjectId },
         skip,
         take: limit,
@@ -167,7 +167,7 @@ export class TeacherSubjectService {
           teacher: true,
         },
       }),
-      this.prisma.teacherSubject.count({
+      this.prismaAcademic.teacherSubject.count({
         where: { subjectId },
       }),
     ]);
@@ -187,7 +187,7 @@ export class TeacherSubjectService {
     await this.findOne(id);
 
     if (updateTeacherSubjectDto.teacherId) {
-      const teacher = await this.prisma.teacher.findUnique({
+      const teacher = await this.prismaAcademic.teacher.findUnique({
         where: { id: updateTeacherSubjectDto.teacherId },
       });
 
@@ -197,7 +197,7 @@ export class TeacherSubjectService {
     }
 
     if (updateTeacherSubjectDto.subjectId) {
-      const subject = await this.prisma.subject.findUnique({
+      const subject = await this.prismaAcademic.subject.findUnique({
         where: { id: updateTeacherSubjectDto.subjectId },
       });
 
@@ -206,7 +206,7 @@ export class TeacherSubjectService {
       }
     }
 
-    return this.prisma.teacherSubject.update({
+    return this.prismaAcademic.teacherSubject.update({
       where: { id },
       data: updateTeacherSubjectDto,
       include: {
@@ -228,7 +228,7 @@ export class TeacherSubjectService {
   async remove(id: number) {
     await this.findOne(id);
     
-    return this.prisma.teacherSubject.delete({
+    return this.prismaAcademic.teacherSubject.delete({
       where: { id },
     });
   }

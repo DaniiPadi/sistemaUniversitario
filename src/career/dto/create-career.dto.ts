@@ -10,7 +10,13 @@ export class CreateCareerDto {
   @IsInt()
   @Min(1)
   @Type(() => Number)
-  duration: number;
+  totalCycles: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
+  @Type(() => Number)
+  durationYears: number;
 
   @IsNotEmpty()
   @IsInt()

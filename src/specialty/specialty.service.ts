@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prism/prisma.service';
+import { PrismaAcademicService } from '../prisma/prisma-academic.service';
 import { CreateSpecialtyDto } from './dto/create-specialty.dto';
 import { UpdateSpecialtyDto } from './dto/update-specialty.dto';
 
 @Injectable()
 export class SpecialtyService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prismaAcademic: PrismaAcademicService) {}
 
   create(createSpecialtyDto: CreateSpecialtyDto) {
-    return this.prisma.specialty.create({
+    return this.prismaAcademic.specialty.create({
       data: createSpecialtyDto,
     });
   }
@@ -17,14 +17,14 @@ export class SpecialtyService {
     const skip = (page - 1) * limit;
     
     const [data, total] = await Promise.all([
-      this.prisma.specialty.findMany({
+      this.prismaAcademic.specialty.findMany({
         skip,
         take: limit,
         include: {
           careers: true,
         },
       }),
-      this.prisma.specialty.count(),
+      this.prismaAcademic.specialty.count(),
     ]);
 
     return {
@@ -39,7 +39,7 @@ export class SpecialtyService {
   }
 
   async findOne(id: number) {
-    const specialty = await this.prisma.specialty.findUnique({
+    const specialty = await this.prismaAcademic.specialty.findUnique({
       where: { id },
       include: {
         careers: true,
@@ -56,7 +56,7 @@ export class SpecialtyService {
   async update(id: number, updateSpecialtyDto: UpdateSpecialtyDto) {
     await this.findOne(id);
     
-    return this.prisma.specialty.update({
+    return this.prismaAcademic.specialty.update({
       where: { id },
       data: updateSpecialtyDto,
     });
@@ -65,7 +65,7 @@ export class SpecialtyService {
   async remove(id: number) {
     await this.findOne(id);
     
-    return this.prisma.specialty.delete({
+    return this.prismaAcademic.specialty.delete({
       where: { id },
     });
   }

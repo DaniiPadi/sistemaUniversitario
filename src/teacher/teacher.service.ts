@@ -1,14 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prism/prisma.service';
+import { PrismaAcademicService } from '../prisma/prisma-academic.service';
 import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
 
 @Injectable()
 export class TeacherService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prismaAcademic: PrismaAcademicService) {}
 
   create(createTeacherDto: CreateTeacherDto) {
-    return this.prisma.teacher.create({
+    return this.prismaAcademic.teacher.create({
       data: createTeacherDto,
     });
   }
@@ -17,7 +17,7 @@ export class TeacherService {
     const skip = (page - 1) * limit;
     
     const [data, total] = await Promise.all([
-      this.prisma.teacher.findMany({
+      this.prismaAcademic.teacher.findMany({
         skip,
         take: limit,
         include: {
@@ -28,7 +28,7 @@ export class TeacherService {
           },
         },
       }),
-      this.prisma.teacher.count(),
+      this.prismaAcademic.teacher.count(),
     ]);
 
     return {
@@ -43,7 +43,7 @@ export class TeacherService {
   }
 
   async findOne(id: number) {
-    const teacher = await this.prisma.teacher.findUnique({
+    const teacher = await this.prismaAcademic.teacher.findUnique({
       where: { id },
       include: {
         subjects: {
@@ -69,7 +69,7 @@ export class TeacherService {
   async update(id: number, updateTeacherDto: UpdateTeacherDto) {
     await this.findOne(id);
     
-    return this.prisma.teacher.update({
+    return this.prismaAcademic.teacher.update({
       where: { id },
       data: updateTeacherDto,
     });
@@ -78,7 +78,7 @@ export class TeacherService {
   async remove(id: number) {
     await this.findOne(id);
     
-    return this.prisma.teacher.delete({
+    return this.prismaAcademic.teacher.delete({
       where: { id },
     });
   }

@@ -1,150 +1,78 @@
 {
 	"info": {
-		"_postman_id": "8a98903f-cb6e-48db-b2c7-48148576ac34",
-		"name": "Sistema Universitario API",
-		"description": "Colección de pruebas para la API del Sistema Universitario (NestJS + Prisma)EndFragment",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "44973700",
-		"_collection_link": "https://danielpadilla-6680188.postman.co/workspace/Daniel-Padilla's-Workspace~4b10e4fd-3553-4f7c-8c9a-d713dcf5578a/collection/44973700-8a98903f-cb6e-48db-b2c7-48148576ac34?action=share&source=collection_link&creator=44973700"
+		"_postman_id": "university-system-api",
+		"name": "Sistema Universitario - API",
+		"description": "Colección completa para probar el sistema universitario con 3 bases de datos (Auth, Academic, Support)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Users",
+			"name": "1. Authentication (Auth DB)",
 			"item": [
 				{
-					"name": "Create Users",
+					"name": "Register User",
 					"request": {
 						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Daniel Padilla\",\r\n  \"email\": \"daniel@university.com\",\r\n  \"password\": \"password123\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
 							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Juan Pérez\",\n  \"email\": \"juan@example.com\",\n  \"username\": \"juanp\",\n  \"password\": \"password123\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:3000/users",
-							"protocol": "http",
+							"raw": "{{base_url}}/auth/register",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"users"
+								"auth",
+								"register"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "list users",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Daniel Padilla\",\r\n  \"email\": \"daniel@university.com\",\r\n  \"password\": \"password123\"\r\n}\r\n"
-						},
-						"url": {
-							"raw": "http://localhost:3000/users",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"users"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get user by id",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Daniel Padilla\",\r\n  \"email\": \"daniel@university.com\",\r\n  \"password\": \"password123\"\r\n}\r\n"
-						},
-						"url": {
-							"raw": "http://localhost:3000/users/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"users",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Edit",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Daniel E. Padilla\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200 || pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.accessToken);",
+									"    console.log(\"Token guardado:\", jsonData.accessToken);",
+									"}"
+								],
+								"type": "text/javascript"
 							}
-						},
-						"url": {
-							"raw": "http://localhost:3000/users/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"users",
-								"1"
-							]
 						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete",
+					],
 					"request": {
-						"method": "DELETE",
-						"header": [],
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n  \"email\": \"juan@example.com\",\n  \"password\": \"password123\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:3000/users/1",
-							"protocol": "http",
+							"raw": "{{base_url}}/auth/login",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"users",
-								"1"
+								"auth",
+								"login"
 							]
 						}
 					},
@@ -153,50 +81,55 @@
 			]
 		},
 		{
-			"name": "Specialties",
+			"name": "2. Specialties (Academic DB)",
 			"item": [
 				{
 					"name": "Create Specialty",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Arquitectura\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n  \"name\": \"Ingeniería\",\n  \"description\": \"Especialidad de Ingeniería\"\n}"
 						},
 						"url": {
-							"raw": "http://localhost:3000/specialties",
-							"protocol": "http",
+							"raw": "{{base_url}}/specialty",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"specialties"
+								"specialty"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "List Specialties",
+					"name": "Get All Specialties",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"url": {
-							"raw": "http://localhost:3000/specialties?page=1&limit=10",
-							"protocol": "http",
+							"raw": "{{base_url}}/specialty?page=1&limit=10",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"specialties"
+								"specialty"
 							],
 							"query": [
 								{
@@ -214,74 +147,21 @@
 				},
 				{
 					"name": "Get Specialty by ID",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Arquitectura\"\r\n}"
-						},
-						"url": {
-							"raw": "http://localhost:3000/specialties/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"specialties",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Edit",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Ingeniería y Tecnología\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
 							}
-						},
+						],
 						"url": {
-							"raw": "http://localhost:3000/specialties/1",
-							"protocol": "http",
+							"raw": "{{base_url}}/specialty/1",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"specialties",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/specialties/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"specialties",
+								"specialty",
 								"1"
 							]
 						}
@@ -291,141 +171,122 @@
 			]
 		},
 		{
-			"name": "Cycles",
+			"name": "3. Careers (Academic DB)",
+			"item": [
+				{
+					"name": "Create Career",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Ingeniería de Software\",\n  \"totalCycles\": 10,\n  \"durationYears\": 5,\n  \"specialtyId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/career",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"career"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Careers",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/career?page=1&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"career"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Cycles (Academic DB)",
 			"item": [
 				{
 					"name": "Create Cycle",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"5to Ciclo\",\r\n  \"number\": 5\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n  \"name\": \"Primer Ciclo\",\n  \"number\": 1\n}"
 						},
 						"url": {
-							"raw": "http://localhost:3000/cycles",
-							"protocol": "http",
+							"raw": "{{base_url}}/cycle",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"cycles"
+								"cycle"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "List Cycles",
+					"name": "Get All Cycles",
 					"request": {
 						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/cycles?page=1&limit=10",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"cycles"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Cycle by ID",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"3er Ciclo\",\r\n  \"number\": 3\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
 							}
-						},
+						],
 						"url": {
-							"raw": "http://localhost:3000/cycles/1",
-							"protocol": "http",
+							"raw": "{{base_url}}/cycle",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"cycles",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Edit",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Primer Ciclo\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3000/cycles/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"cycles",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/cycles/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"cycles",
-								"1"
+								"cycle"
 							]
 						}
 					},
@@ -434,260 +295,55 @@
 			]
 		},
 		{
-			"name": "Careers",
-			"item": [
-				{
-					"name": "create a career",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Ingeniería de Sistemas Computacionales\",\r\n  \"duration\": 4,\r\n  \"specialtyId\": 2\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3000/careers",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"careers"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List Careers",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/careers?page=1&limit=10",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"careers"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Career by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/careers/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"careers",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Edit",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"duration\": 6\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3000/careers/3",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"careers",
-								"3"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/careers/3",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"careers",
-								"3"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Subjects",
+			"name": "5. Subjects (Academic DB)",
 			"item": [
 				{
 					"name": "Create Subject",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Programación III\",\r\n  \"credits\": 4,\r\n  \"careerId\": 4,\r\n  \"cycleId\": 3\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n  \"name\": \"Programación I\",\n  \"credits\": 4,\n  \"careerId\": 1,\n  \"cycleId\": 1\n}"
 						},
 						"url": {
-							"raw": "http://localhost:3000/subjects",
-							"protocol": "http",
+							"raw": "{{base_url}}/subject",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"subjects"
+								"subject"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "List Subjects",
+					"name": "Get All Subjects",
 					"request": {
 						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/subjects?page=1&limit=10",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"subjects"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get Subject by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/subjects/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"subjects",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Edit",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"credits\": 7\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
 							}
-						},
+						],
 						"url": {
-							"raw": "http://localhost:3000/subjects/3",
-							"protocol": "http",
+							"raw": "{{base_url}}/subject",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"subjects",
-								"3"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/subjects/4",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"subjects",
-								"4"
+								"subject"
 							]
 						}
 					},
@@ -696,60 +352,55 @@
 			]
 		},
 		{
-			"name": "Teachers",
+			"name": "6. Teachers (Academic DB)",
 			"item": [
 				{
 					"name": "Create Teacher",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"firstName\": \"Juan\",\r\n  \"lastName\": \"Buri\",\r\n  \"email\": \"jp@university.com\",\r\n  \"phone\": \"+593987654321\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n  \"firstName\": \"Carlos\",\n  \"lastName\": \"Rodríguez\",\n  \"email\": \"carlos@university.com\",\n  \"phone\": \"0999999999\",\n  \"userId\": 1\n}"
 						},
 						"url": {
-							"raw": "http://localhost:3000/teachers",
-							"protocol": "http",
+							"raw": "{{base_url}}/teacher",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"teachers"
+								"teacher"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "List Teachers",
+					"name": "Get All Teachers",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"url": {
-							"raw": "http://localhost:3000/teachers?page=1&limit=10",
-							"protocol": "http",
+							"raw": "{{base_url}}/teacher",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"teachers"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
+								"teacher"
 							]
 						}
 					},
@@ -757,83 +408,21 @@
 				},
 				{
 					"name": "Get Teacher by ID",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"firstName\": \"Carlos\",\r\n  \"lastName\": \"Rodríguez\",\r\n  \"email\": \"carlos@university.com\",\r\n  \"phone\": \"+593987654321\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
 							}
-						},
+						],
 						"url": {
-							"raw": "http://localhost:3000/teachers/1",
-							"protocol": "http",
+							"raw": "{{base_url}}/teacher/1",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"teachers",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update teacher",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"firstName\": \"Daniel\",\r\n  \"lastName\": \"Ramírez\",\r\n  \"email\": \"daniel.ramirez@example.com\",\r\n  \"phone\": \"0991234567\"\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3000/teachers/3",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"teachers",
-								"3"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete teacher",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"name\": \"Daniel Padilla\",\r\n  \"email\": \"daniel@university.com\",\r\n  \"password\": \"password123\"\r\n}\r\n"
-						},
-						"url": {
-							"raw": "http://localhost:3000/teachers/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"teachers",
+								"teacher",
 								"1"
 							]
 						}
@@ -843,60 +432,55 @@
 			]
 		},
 		{
-			"name": "Students",
+			"name": "7. Students (Academic DB)",
 			"item": [
 				{
 					"name": "Create Student",
 					"request": {
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"firstName\": \"Ana\",\r\n  \"lastName\": \"Martínez\",\r\n  \"email\": \"ana@university.com\",\r\n  \"phone\": \"+593987654321\",\r\n  \"careerId\": 4\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
+							"raw": "{\n  \"firstName\": \"María\",\n  \"lastName\": \"González\",\n  \"email\": \"maria@student.com\",\n  \"phone\": \"0988888888\",\n  \"careerId\": 1,\n  \"userId\": 1\n}"
 						},
 						"url": {
-							"raw": "http://localhost:3000/students",
-							"protocol": "http",
+							"raw": "{{base_url}}/student",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"students"
+								"student"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "List Students",
+					"name": "Get All Students",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"url": {
-							"raw": "http://localhost:3000/students?page=1&limit=10",
-							"protocol": "http",
+							"raw": "{{base_url}}/student",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"students"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
+								"student"
 							]
 						}
 					},
@@ -906,171 +490,19 @@
 					"name": "Get Student by ID",
 					"request": {
 						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/students/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"students",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Edit",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"phone\": \"+593999111222\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
 							}
-						},
+						],
 						"url": {
-							"raw": "http://localhost:3000/students/2",
-							"protocol": "http",
+							"raw": "{{base_url}}/student/1",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"students",
-								"2"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"phone\": \"+593999111222\"\r\n}"
-						},
-						"url": {
-							"raw": "http://localhost:3000/students/2",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"students",
-								"2"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "teacherSubject",
-			"item": [
-				{
-					"name": "Create",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"teacherId\": 3,\r\n  \"subjectId\": 5\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3000/teacher-subjects",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"teacher-subjects"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List Subject",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/teacher-subjects?page=1&limit=10",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"teacher-subjects"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get subject by ID",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/teacher-subjects/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"teacher-subjects",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "New Request",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/teacher-subjects/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"teacher-subjects",
+								"student",
 								"1"
 							]
 						}
@@ -1080,128 +512,47 @@
 			]
 		},
 		{
-			"name": "studentSubject",
+			"name": "8. Users (Auth DB)",
 			"item": [
 				{
-					"name": "Create",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"studentId\": 3,\r\n  \"subjectId\": 5\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3000/student-subjects",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"student-subjects"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List",
+					"name": "Get All Users",
 					"request": {
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"url": {
-							"raw": "http://localhost:3000/student-subjects?page=1&limit=10",
-							"protocol": "http",
+							"raw": "{{base_url}}/user",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"student-subjects"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								}
+								"user"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Get id",
+					"name": "Get User by ID",
 					"request": {
 						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/student-subjects/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"student-subjects",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Edit",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"grade\": 8.5,\r\n  \"passed\": true\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
 							}
-						},
+						],
 						"url": {
-							"raw": "http://localhost:3000/student-subjects/1",
-							"protocol": "http",
+							"raw": "{{base_url}}/user/1",
 							"host": [
-								"localhost"
+								"{{base_url}}"
 							],
-							"port": "3000",
 							"path": [
-								"student-subjects",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3000/student-subjects/1",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3000",
-							"path": [
-								"student-subjects",
+								"user",
 								"1"
 							]
 						}
@@ -1209,6 +560,18 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
 		}
 	]
 }

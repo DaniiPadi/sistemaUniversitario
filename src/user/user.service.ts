@@ -1,19 +1,19 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { PrismaService } from '../prism/prisma.service';
+import { PrismaAuthService } from '../prisma/prisma-auth.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prismaAuth: PrismaAuthService) {}
 
   async create(createUserDto: CreateUserDto) {
     // Hash de la contraseña
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     try {
-      return await this.prisma.user.create({
+      return await this.prismaAuth.user.create({
         data: {
           ...createUserDto,
           password: hashedPassword,
@@ -35,7 +35,7 @@ export class UserService {
     const skip = (page - 1) * limit;
     
     const [data, total] = await Promise.all([
-      this.prisma.user.findMany({
+      this.prismaAuth.user.findMany({
         skip,
         take: limit,
         select: {
@@ -46,7 +46,7 @@ export class UserService {
           createdAt: true,
         },
       }),
-      this.prisma.user.count(),
+      this.prismaAuth.user.count(),
     ]);
 
     return {
@@ -61,7 +61,7 @@ export class UserService {
   }
 
   async findOne(id: number) {
-    const user = await this.prisma.user.findUnique({
+    const user = await this.prismaAuth.user.findUnique({
       where: { id },
       select: {
         id: true,
@@ -89,7 +89,7 @@ export class UserService {
     }
 
     try {
-      return await this.prisma.user.update({
+      return await this.prismaAuth.user.update({
         where: { id },
         data: dataToUpdate,
         select: {
@@ -108,7 +108,7 @@ export class UserService {
   async remove(id: number) {
     await this.findOne(id);
     
-    return this.prisma.user.delete({
+    return this.prismaAuth.user.delete({
       where: { id },
     });
   }

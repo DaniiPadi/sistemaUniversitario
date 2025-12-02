@@ -20,4 +20,8 @@ export class CreateStudentDto {
   @IsNotEmpty()
   @IsInt()
   careerId: number;
+
+  @IsNotEmpty()
+  @IsInt()
+  userId: number;
 }
