@@ -22,10 +22,10 @@ symlinks.forEach(({ target, link }) => {
     // Create symlink (junction on Windows)
     try {
         fs.symlinkSync(target, link, 'junction');
-        console.log(`✓ Created symlink: ${path.basename(link)}`);
+        console.log(`Created symlink: ${path.basename(link)}`);
     } catch (error) {
-        console.error(`✗ Failed to create symlink for ${path.basename(link)}:`, error.message);
+        console.error(`Failed to create symlink for ${path.basename(link)}:`, error.message);
     }
 });
 
-console.log('✓ All symlinks created');
+console.log('All symlinks created');

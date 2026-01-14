@@ -22,7 +22,15 @@
     "db:push:auth": "prisma db push --config prisma-auth.config.ts",
     "db:push:academic": "prisma db push --config prisma-academic.config.ts",
     "db:push:support": "prisma db push --config prisma-support.config.ts",
-    "db:push:all": "npm run db:push:auth && npm run db:push:academic && npm run db:push:support"
+    "db:push:all": "npm run db:push:auth && npm run db:push:academic && npm run db:push:support",
+    "db:migrate:auth": "prisma migrate dev --config prisma-auth.config.ts",
+    "db:migrate:academic": "prisma migrate dev --config prisma-academic.config.ts",
+    "db:migrate:support": "prisma migrate dev --config prisma-support.config.ts",
+    "db:seed": "ts-node prisma/seed.ts",
+    "db:init": "npm run prisma:generate && npm run db:push:all && npm run db:seed"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

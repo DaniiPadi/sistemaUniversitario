@@ -14,8 +14,8 @@ clients.forEach(({ dir, name }) => {
         const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
         packageJson.name = name;
         fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
-        console.log(`✓ Updated ${name}`);
+        console.log(`Updated ${name}`);
     }
 });
 
-console.log('✓ All Prisma client package names updated');
+console.log('All Prisma client package names updated');

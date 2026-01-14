@@ -1,35 +1,35 @@
 
-# 🎓 Sistema Universitario - API REST
+# Sistema Universitario - API REST
 
 API REST desarrollada con NestJS y Prisma para la gestión de un sistema universitario, incluyendo especialidades, carreras, ciclos, materias, estudiantes y profesores.
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
 - [Tecnologías](#tecnologías)
 - [Requisitos Previos](#requisitos-previos)
 - [Instalación](#instalación)
 - [Configuración](#configuración)
 - [Estructura del Proyecto](#estructura-del-proyecto)
-- [Modelo de Datos](#modelo-de-datos)
+- [Modelo de Datos](#modelo- de-datos)
 - [Endpoints](#endpoints)
 - [Ejemplos de Uso](#ejemplos-de-uso)
 - [Scripts Disponibles](#scripts-disponibles)
 
-## 🚀 Tecnologías
+## Tecnologías
 
-- **NestJS 10+** - Framework de Node.js
-- **Prisma 5+** - ORM para PostgreSQL
-- **PostgreSQL** - Base de datos (Neon)
+- **NestJS 11+** - Framework de Node.js
+- **Prisma 7+** - ORM para PostgreSQL
+- **PostgreSQL** - Base de datos
 - **TypeScript** - Lenguaje de programación
 - **class-validator** - Validación de DTOs
 
-## 📦 Requisitos Previos
+## Requisitos Previos
 
 - Node.js 18+ y npm
 - Base de datos PostgreSQL (local o remota)
 - Git
 
-## ⚙️ Instalación
+## Instalación
 
 1. **Clonar el repositorio:**
 ```bash
@@ -46,11 +46,12 @@ npm install
 ```bash
 cp .env.example .env
 ```
+Asegurarse de configurar `DATABASE_ACADEMIC_URL`, `DATABASE_AUTH_URL` y `DATABASE_SUPPORT_URL`.
 
-4. **Ejecutar migraciones:**
+4. **Configuración Automática de Base de Datos:**
+Este comando generará los clientes de Prisma, creará las tablas y poblará los datos iniciales (Seed) de una sola vez:
 ```bash
-npx prisma generate
-npx prisma migrate dev --name init
+npm run db:init
 ```
 
 5. **Iniciar el servidor:**
@@ -60,25 +61,23 @@ npm run start:dev
 
 La API estará disponible en: `http://localhost:3000`
 
-## 🔧 Configuración
+## Configuración
 
-### Archivo `.env`
+### Archivo .env
 
-```properties
-DATABASE_URL="postgresql://usuario:password@host:5432/database?sslmode=require"
-PORT=3000
-NODE_ENV=development
-```
+Se requiere configurar las URLs de conexión para las tres bases de datos modulares:
+- `DATABASE_ACADEMIC_URL`
+- `DATABASE_AUTH_URL`
+- `DATABASE_SUPPORT_URL`
 
 ### Prisma Studio
 
-Para visualizar y gestionar la base de datos:
+Para visualizar y gestionar la base de datos académica:
 ```bash
-npx prisma studio
+npx prisma studio --config prisma-academic.config.ts
 ```
-Abre: `http://localhost:5555`
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 src/
@@ -88,355 +87,86 @@ src/
 ├── career/             # Módulo de carreras
 ├── cycle/              # Módulo de ciclos
 ├── subject/            # Módulo de materias (con cupos disponibles)
-├── teacher/            # Módulo de profesores (filtros lógicos)
-├── student/            # Módulo de estudiantes (filtros por estado activo)
+├── teacher/            # Módulo de profesores
+├── student/            # Módulo de estudiantes
 ├── student-subject/    # Módulo de matriculación (Transaccional ACID)
 ├── reports/            # Módulo de reportes (SQL Nativo)
 ├── app.module.ts
 └── main.ts
 ```
 
-Cada módulo contiene:
-- **DTO**: Validación de datos de entrada
-- **Service**: Lógica de negocio
-- **Controller**: Endpoints REST
-- **Module**: Configuración del módulo
-
-## 🗄️ Modelo de Datos
+## Modelo de Datos
 
 ### Relaciones principales:
 
-```
-Specialty (1) ──→ (N) Career
-Career (1) ──→ (N) Subject
-Career (1) ──→ (N) Student
-Cycle (1) ──→ (N) Subject
-Teacher (N) ←──→ (N) Subject (TeacherSubject)
-Student (N) ←──→ (N) Subject (StudentSubject)
-```
+- Specialty (1) -> (N) Career
+- Career (1) -> (N) Subject
+- Career (1) -> (N) Student
+- Cycle (1) -> (N) Subject
+- Teacher (N) <-> (N) Subject (TeacherSubject)
+- Student (N) <-> (N) Subject (StudentSubject)
 
-### Tablas clave actualizadas:
+## Endpoints
 
-- **Subject**: Incluye `availableSlots` para control de cupos.
-- **Teacher**: Incluye `isFullTime` para clasificación docente.
-- **StudentSubject**: Incluye `academicPeriod` para historial de matrículas.
+### Users
+- POST /users - Crear usuario
+- GET /users - Listar usuarios
 
-## 🌐 Endpoints
+### Students
+- POST /students - Crear estudiante
+- GET /students - Listar estudiantes
+- GET /students/active - Estudiantes con usuario activo
+- GET /students/filter - Buscar con filtros (careerId, academicPeriod)
 
-### 👤 Users
-```
-POST   /users          - Crear usuario
-GET    /users          - Listar usuarios
-```
+### Subjects
+- POST /subjects - Crear materia
+- GET /subjects - Listar materias
+- GET /subjects/career/:careerId - Materias por carrera
 
-### � Students
-```
-POST   /students       - Crear estudiante
-GET    /students       - Listar estudiantes
-GET    /students/active - Listar estudiantes con usuario activo en BD AUTH
-GET    /students/filter - Buscar con filtros (careerId, academicPeriod)
-```
+### Teachers
+- POST /teachers - Crear profesor
+- GET /teachers - Listar profesores
+- GET /teachers/multiple-subjects - Docentes con mas de 1 asignatura
 
-### 📚 Subjects
-```
-POST   /subjects       - Crear materia (permite definir cupos)
-GET    /subjects       - Listar materias
-GET    /subjects/career/:careerId - Materias por carrera específica
-```
+### Matriculación (Student-Subjects)
+- POST /student-subjects/enroll - Matriculación TRANSACCIONAL (Garantía ACID)
+- GET /student-subjects/student/:studentId/period/:academicPeriod - Buscar matrícula
 
-### 👨‍🏫 Teachers
-```
-POST   /teachers       - Crear profesor
-GET    /teachers       - Listar profesores
-GET    /teachers/multiple-subjects - Docentes con >1 asignatura
-GET    /teachers/filter-logical - Filtro complejo (FullTime OR Active)
-```
+## Scripts Disponibles
 
-### 📝 Matriculación (Student-Subjects)
-```
-POST   /student-subjects/enroll - Matriculación TRANSACCIONAL (Garantía ACID)
-GET    /student-subjects/student/:studentId/period/:academicPeriod - Buscar matrícula específica
-```
+- `npm run start:dev`: Inicia servidor en modo desarrollo.
+- `npm run build`: Compila el proyecto.
+- `npm run db:init`: Configuración completa (Generar tipos + Sincronizar tablas + Seeding).
+- `npm run db:seed`: Puebla la base de datos con datos de prueba manualmente.
+- `npm run prisma:generate`: Solo genera los clientes de Prisma.
+- `npm run db:migrate:academic`: Migraciones específicas para el módulo académico.
+- `npm run db:migrate:auth`: Migraciones específicas para el módulo de auth.
 
-### 📊 Reports
-```
-GET    /reports/student-enrollment - Reporte de carga académica (SQL Nativo)
-```
-
-## 📝 Ejemplos de Uso
-
-### Crear una Especialidad
-
-```bash
-POST /specialties
-Content-Type: application/json
-
-{
-  "name": "Ingeniería"
-}
-```
-
-**Respuesta:**
-```json
-{
-  "id": 1,
-  "name": "Ingeniería"
-}
-```
-
-### Crear una Carrera
-
-```bash
-POST /careers
-Content-Type: application/json
-
-{
-  "name": "Ingeniería de Sistemas",
-  "duration": 5,
-  "specialtyId": 1
-}
-```
-
-**Respuesta:**
-```json
-{
-  "id": 1,
-  "name": "Ingeniería de Sistemas",
-  "duration": 5,
-  "specialtyId": 1,
-  "specialty": {
-    "id": 1,
-    "name": "Ingeniería"
-  }
-}
-```
-
-### Crear un Estudiante
-
-```bash
-POST /students
-Content-Type: application/json
-
-{
-  "firstName": "Ana",
-  "lastName": "Martínez",
-  "email": "ana.martinez@university.com",
-  "phone": "+593987654321",
-  "careerId": 1
-}
-```
-
-**Respuesta:**
-```json
-{
-  "id": 1,
-  "firstName": "Ana",
-  "lastName": "Martínez",
-  "email": "ana.martinez@university.com",
-  "phone": "+593987654321",
-  "careerId": 1,
-  "createdAt": "2025-10-10T18:30:00.000Z",
-  "career": {
-    "id": 1,
-    "name": "Ingeniería de Sistemas",
-    "duration": 5,
-    "specialtyId": 1,
-    "specialty": {
-      "id": 1,
-      "name": "Ingeniería"
-    }
-  }
-}
-```
-
-### Listar con Paginación
-
-```bash
-GET /students?page=1&limit=10
-```
-
-**Respuesta:**
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "firstName": "Ana",
-      "lastName": "Martínez",
-      "email": "ana.martinez@university.com",
-      "phone": "+593987654321",
-      "careerId": 1,
-      "createdAt": "2025-10-10T18:30:00.000Z",
-      "career": {
-        "id": 1,
-        "name": "Ingeniería de Sistemas",
-        "duration": 5,
-        "specialtyId": 1,
-        "specialty": {
-          "id": 1,
-          "name": "Ingeniería"
-        }
-      }
-    }
-  ],
-  "meta": {
-    "total": 1,
-    "page": 1,
-    "limit": 10,
-    "totalPages": 1
-  }
-}
-```
-
-## 🛠️ Scripts Disponibles
-
-```bash
-# Desarrollo
-npm run start:dev      # Inicia servidor en modo desarrollo
-
-# Producción
-npm run build          # Compila el proyecto
-npm run start:prod     # Inicia servidor en producción
-
-# Prisma
-npx prisma generate    # Genera cliente Prisma
-npx prisma migrate dev # Crea nueva migración
-npx prisma studio      # Abre interfaz visual de BD
-npx prisma db push     # Sincroniza schema sin migración
-
-# Testing
-npm run test           # Ejecuta tests
-```
-
-## ✅ Validaciones
+## Validaciones
 
 Todas las peticiones POST son validadas automáticamente con `class-validator`:
+- Email: Debe ser un email válido.
+- Strings: No pueden estar vacíos.
+- IDs: Deben ser números enteros.
 
-- **Email**: Debe ser un email válido
-- **Strings**: No pueden estar vacíos
-- **IDs**: Deben ser números enteros
-- **Relaciones**: Se verifica que existan antes de crear
-
-### Ejemplo de error de validación:
-
-```json
-{
-  "message": [
-    "name should not be empty",
-    "email must be an email"
-  ],
-  "error": "Bad Request",
-  "statusCode": 400
-}
-```
-
-## 🔒 Manejo de Errores
+## Manejo de Errores
 
 La API devuelve errores HTTP estándar:
+- 400: Bad Request (validación fallida)
+- 404: Not Found (recurso no encontrado)
+- 409: Conflict (duplicados o conflicto de negocio)
+- 500: Internal Server Error
 
-- **400**: Bad Request (validación fallida)
-- **404**: Not Found (recurso no encontrado)
-- **500**: Internal Server Error
+## Orden de Creación Recomendado
 
-### Ejemplo de error 404:
+1. Specialties
+2. Cycles
+3. Careers
+4. Subjects
+5. Teachers/Users
+6. Students
 
-```json
-{
-  "message": "Student with ID 999 not found",
-  "error": "Not Found",
-  "statusCode": 404
-}
-```
-
-## 📊 Orden de Creación Recomendado
-
-Para evitar errores de relaciones, crear recursos en este orden:
-
-1. ✅ **Specialties** (sin dependencias)
-2. ✅ **Cycles** (sin dependencias)
-3. ✅ **Careers** (requiere Specialty)
-4. ✅ **Subjects** (requiere Career y Cycle)
-5. ✅ **Teachers** (sin dependencias)
-6. ✅ **Students** (requiere Career)
-
-## 🧪 Pruebas con Postman
-
-### Colección de Endpoints
-
-Importa esta colección en Postman o prueba manualmente:
-
-#### 1. Crear Especialidad
-```
-POST http://localhost:3000/specialties
-Body: {"name": "Ingeniería"}
-```
-
-#### 2. Crear Ciclo
-```
-POST http://localhost:3000/cycles
-Body: {"name": "1er Ciclo", "number": 1}
-```
-
-#### 3. Crear Carrera
-```
-POST http://localhost:3000/careers
-Body: {
-  "name": "Ingeniería de Sistemas",
-  "duration": 5,
-  "specialtyId": 1
-}
-```
-
-#### 4. Crear Materia
-```
-POST http://localhost:3000/subjects
-Body: {
-  "name": "Programación I",
-  "credits": 4,
-  "careerId": 1,
-  "cycleId": 1
-}
-```
-
-#### 5. Crear Profesor
-```
-POST http://localhost:3000/teachers
-Body: {
-  "firstName": "Carlos",
-  "lastName": "Rodríguez",
-  "email": "carlos@university.com",
-  "phone": "+593987654321"
-}
-```
-
-#### 6. Crear Estudiante
-```
-POST http://localhost:3000/students
-Body: {
-  "firstName": "Ana",
-  "lastName": "Martínez",
-  "email": "ana@university.com",
-  "careerId": 1,
-  "userId": 1
-}
-```
-
-#### 7. Matriculación Transaccional (ACID)
-```
-POST http://localhost:3000/student-subjects/enroll
-Body: {
-  "studentId": 1,
-  "subjectId": 1,
-  "academicPeriod": "2024-I"
-}
-```
-
-#### 8. Reporte SQL Nativo
-```
-GET http://localhost:3000/reports/student-enrollment
-```
-
-## 📄 Licencia
+## Licencia
 
 Este proyecto fue desarrollado como parte de un proyecto académico.
 
@@ -445,6 +175,3 @@ Este proyecto fue desarrollado como parte de un proyecto académico.
 **Desarrollado por:** Daniel Padilla  
 **Institución:** Instituto Sudamericano  
 **Fecha:** Enero 2026
-
-
-# sistemaUniversitario
