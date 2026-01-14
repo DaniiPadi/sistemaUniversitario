@@ -1,11 +1,11 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 
 @Controller('students')
 export class StudentController {
-  constructor(private readonly studentService: StudentService) {}
+  constructor(private readonly studentService: StudentService) { }
 
   @Post()
   create(@Body() createStudentDto: CreateStudentDto) {
@@ -18,6 +18,22 @@ export class StudentController {
     @Query('limit') limit: string = '10',
   ) {
     return this.studentService.findAll(parseInt(page), parseInt(limit));
+  }
+
+  // PASO 2.1: Endpoint para listar estudiantes activos
+  @Get('active')
+  findAllActive() {
+    return this.studentService.findAllActive();
+  }
+
+  // PASO 3.1: Endpoint para buscar con filtros combinados
+  @Get('filter')
+  findWithFilters(
+    @Query('careerId') careerId?: string,
+    @Query('academicPeriod') academicPeriod?: string,
+  ) {
+    const careerIdNum = careerId ? parseInt(careerId) : undefined;
+    return this.studentService.findWithFilters(careerIdNum, academicPeriod);
   }
 
   @Get(':id')

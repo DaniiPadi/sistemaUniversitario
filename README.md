@@ -82,20 +82,16 @@ Abre: `http://localhost:5555`
 
 ```
 src/
-├── prism/              # Módulo de Prisma (servicio global)
-│   ├── prism.service.ts
-│   └── prism.module.ts
+├── prisma/             # Módulo de Prisma (Múltiples DBs: Academic, Auth, Support)
 ├── user/               # Módulo de usuarios
-│   ├── dto/
-│   ├── user.controller.ts
-│   ├── user.service.ts
-│   └── user.module.ts
 ├── specialty/          # Módulo de especialidades
 ├── career/             # Módulo de carreras
 ├── cycle/              # Módulo de ciclos
-├── subject/            # Módulo de materias
-├── teacher/            # Módulo de profesores
-├── student/            # Módulo de estudiantes
+├── subject/            # Módulo de materias (con cupos disponibles)
+├── teacher/            # Módulo de profesores (filtros lógicos)
+├── student/            # Módulo de estudiantes (filtros por estado activo)
+├── student-subject/    # Módulo de matriculación (Transaccional ACID)
+├── reports/            # Módulo de reportes (SQL Nativo)
 ├── app.module.ts
 └── main.ts
 ```
@@ -119,76 +115,52 @@ Teacher (N) ←──→ (N) Subject (TeacherSubject)
 Student (N) ←──→ (N) Subject (StudentSubject)
 ```
 
-### Tablas:
+### Tablas clave actualizadas:
 
-- **User**: Usuarios del sistema
-- **Specialty**: Especialidades (Ingeniería, Medicina, etc.)
-- **Career**: Carreras universitarias
-- **Cycle**: Ciclos académicos (1er ciclo, 2do ciclo, etc.)
-- **Subject**: Materias/Asignaturas
-- **Teacher**: Profesores
-- **Student**: Estudiantes
-- **TeacherSubject**: Relación profesor-materia
-- **StudentSubject**: Inscripciones y calificaciones
+- **Subject**: Incluye `availableSlots` para control de cupos.
+- **Teacher**: Incluye `isFullTime` para clasificación docente.
+- **StudentSubject**: Incluye `academicPeriod` para historial de matrículas.
 
 ## 🌐 Endpoints
 
-Todos los endpoints soportan paginación con los parámetros `?page=1&limit=10`
-
 ### 👤 Users
-
 ```
 POST   /users          - Crear usuario
-GET    /users          - Listar usuarios (paginado)
-GET    /users/:id      - Obtener usuario por ID
+GET    /users          - Listar usuarios
 ```
 
-### 🎯 Specialties
-
-```
-POST   /specialties    - Crear especialidad
-GET    /specialties    - Listar especialidades
-GET    /specialties/:id - Obtener especialidad por ID
-```
-
-### 🎓 Careers
-
-```
-POST   /careers        - Crear carrera
-GET    /careers        - Listar carreras
-GET    /careers/:id    - Obtener carrera por ID
-```
-
-### 🔄 Cycles
-
-```
-POST   /cycles         - Crear ciclo
-GET    /cycles         - Listar ciclos
-GET    /cycles/:id     - Obtener ciclo por ID
-```
-
-### 📚 Subjects
-
-```
-POST   /subjects       - Crear materia
-GET    /subjects       - Listar materias
-GET    /subjects/:id   - Obtener materia por ID
-```
-
-### 👨‍🏫 Teachers
-
-```
-POST   /teachers       - Crear profesor
-GET    /teachers       - Listar profesores
-GET    /teachers/:id   - Obtener profesor por ID
-```
-
-### 🎓 Students
-
+### � Students
 ```
 POST   /students       - Crear estudiante
 GET    /students       - Listar estudiantes
-GET    /students/:id   - Obtener estudiante por ID
+GET    /students/active - Listar estudiantes con usuario activo en BD AUTH
+GET    /students/filter - Buscar con filtros (careerId, academicPeriod)
+```
+
+### 📚 Subjects
+```
+POST   /subjects       - Crear materia (permite definir cupos)
+GET    /subjects       - Listar materias
+GET    /subjects/career/:careerId - Materias por carrera específica
+```
+
+### 👨‍🏫 Teachers
+```
+POST   /teachers       - Crear profesor
+GET    /teachers       - Listar profesores
+GET    /teachers/multiple-subjects - Docentes con >1 asignatura
+GET    /teachers/filter-logical - Filtro complejo (FullTime OR Active)
+```
+
+### 📝 Matriculación (Student-Subjects)
+```
+POST   /student-subjects/enroll - Matriculación TRANSACCIONAL (Garantía ACID)
+GET    /student-subjects/student/:studentId/period/:academicPeriod - Buscar matrícula específica
+```
+
+### 📊 Reports
+```
+GET    /reports/student-enrollment - Reporte de carga académica (SQL Nativo)
 ```
 
 ## 📝 Ejemplos de Uso
@@ -444,8 +416,24 @@ Body: {
   "firstName": "Ana",
   "lastName": "Martínez",
   "email": "ana@university.com",
-  "careerId": 1
+  "careerId": 1,
+  "userId": 1
 }
+```
+
+#### 7. Matriculación Transaccional (ACID)
+```
+POST http://localhost:3000/student-subjects/enroll
+Body: {
+  "studentId": 1,
+  "subjectId": 1,
+  "academicPeriod": "2024-I"
+}
+```
+
+#### 8. Reporte SQL Nativo
+```
+GET http://localhost:3000/reports/student-enrollment
 ```
 
 ## 📄 Licencia
@@ -456,7 +444,7 @@ Este proyecto fue desarrollado como parte de un proyecto académico.
 
 **Desarrollado por:** Daniel Padilla  
 **Institución:** Instituto Sudamericano  
-**Fecha:** Octubre 2025
+**Fecha:** Enero 2026
 
 
 # sistemaUniversitario

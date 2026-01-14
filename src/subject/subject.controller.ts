@@ -1,11 +1,11 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe } from '@nestjs/common';
 import { SubjectService } from './subject.service';
 import { CreateSubjectDto } from './dto/create-subject.dto';
 import { UpdateSubjectDto } from './dto/update-subject.dto';
 
 @Controller('subjects')
 export class SubjectController {
-  constructor(private readonly subjectService: SubjectService) {}
+  constructor(private readonly subjectService: SubjectService) { }
 
   @Post()
   create(@Body() createSubjectDto: CreateSubjectDto) {
@@ -18,6 +18,12 @@ export class SubjectController {
     @Query('limit') limit: string = '10',
   ) {
     return this.subjectService.findAll(parseInt(page), parseInt(limit));
+  }
+
+  // PASO 2.2: Endpoint para obtener materias de una carrera
+  @Get('career/:careerId')
+  findByCareer(@Param('careerId', ParseIntPipe) careerId: number) {
+    return this.subjectService.findByCareer(careerId);
   }
 
   @Get(':id')

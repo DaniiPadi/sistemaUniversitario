@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsInt, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsInt, Min, IsOptional } from 'class-validator';
 
 export class CreateSubjectDto {
   @IsNotEmpty()
@@ -17,4 +17,9 @@ export class CreateSubjectDto {
   @IsNotEmpty()
   @IsInt()
   cycleId: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  availableSlots?: number;
 }

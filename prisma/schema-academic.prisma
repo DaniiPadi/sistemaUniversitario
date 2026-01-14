@@ -49,17 +49,18 @@ model Cycle {
 }
 
 model Subject {
-  id          Int              @id @default(autoincrement())
-  name        String
-  credits     Int
-  careerId    Int              @map("career_id")
-  cycleId     Int              @map("cycle_id")
-  createdAt   DateTime         @default(now()) @map("created_at")
-  updatedAt   DateTime         @updatedAt @map("updated_at")
-  career      Career           @relation(fields: [careerId], references: [id], onDelete: Cascade)
-  cycle       Cycle            @relation(fields: [cycleId], references: [id], onDelete: Cascade)
-  students    StudentSubject[]
-  teachers    TeacherSubject[]
+  id             Int              @id @default(autoincrement())
+  name           String
+  credits        Int
+  careerId       Int              @map("career_id")
+  cycleId        Int              @map("cycle_id")
+  availableSlots Int              @default(30) @map("available_slots")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  updatedAt      DateTime         @updatedAt @map("updated_at")
+  career         Career           @relation(fields: [careerId], references: [id], onDelete: Cascade)
+  cycle          Cycle            @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  students       StudentSubject[]
+  teachers       TeacherSubject[]
 
   @@unique([careerId, cycleId, name])
   @@index([careerId])
@@ -68,15 +69,16 @@ model Subject {
 }
 
 model Teacher {
-  id        Int              @id @default(autoincrement())
-  userId    Int              @unique @map("user_id") // Link to Auth DB User.id
-  firstName String           @map("first_name")
-  lastName  String           @map("last_name")
-  email     String           @unique
-  phone     String?
-  createdAt DateTime         @default(now()) @map("created_at")
-  updatedAt DateTime         @updatedAt @map("updated_at")
-  subjects  TeacherSubject[]
+  id         Int              @id @default(autoincrement())
+  userId     Int              @unique @map("user_id") // Link to Auth DB User.id
+  firstName  String           @map("first_name")
+  lastName   String           @map("last_name")
+  email      String           @unique
+  phone      String?
+  isFullTime Boolean          @default(false) @map("is_full_time")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  updatedAt  DateTime         @updatedAt @map("updated_at")
+  subjects   TeacherSubject[]
 
   @@map("teachers")
 }
@@ -113,15 +115,16 @@ model Student {
 }
 
 model StudentSubject {
-  id        Int      @id @default(autoincrement())
-  studentId Int      @map("student_id")
-  subjectId Int      @map("subject_id")
-  grade     Float?
-  passed    Boolean  @default(false)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  student   Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  id             Int      @id @default(autoincrement())
+  studentId      Int      @map("student_id")
+  subjectId      Int      @map("subject_id")
+  academicPeriod String   @map("academic_period")
+  grade          Float?
+  passed         Boolean  @default(false)
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  subject        Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, subjectId])
   @@index([studentId])

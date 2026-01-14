@@ -13,6 +13,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { TeacherSubjectModule } from './teacher-subject/teacher-subject.module';
 import { StudentSubjectModule } from './student-subject/student-subject.module';
 import { AuthModule } from './auth/auth.module';
+import { ReportsModule } from './reports/reports.module';
 
 
 
@@ -30,6 +31,7 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     TeacherSubjectModule,
     StudentSubjectModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
